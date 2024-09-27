@@ -16,3 +16,14 @@ spring:
     console.path: /h2-console
     console.settings.trace: false
     console.settings.web-allow-others: false
+
+  cloud:
+    openfeign:
+      client:
+        config:
+          checkout:
+            base-url: https://quickteller.com
+            connect-timeout: 5000
+            read-timeout: 5000
+            payment-url: '/payment'
+            mock-payment: true

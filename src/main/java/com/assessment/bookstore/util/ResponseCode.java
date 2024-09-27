@@ -13,7 +13,8 @@ public enum ResponseCode {
     GENERIC_ERROR("03", "Something went wrong while trying to process your request"),
     DATABASE_SAVE_ERROR("04", "Error Occurred While Saving To The Database"),
     WEBSERVICE_CALL_FAILED("05", "API call failed"),
-    VALIDATION_ERROR("06", "Validation Error");
+    VALIDATION_ERROR("06", "Validation Error"),
+    OUT_OF_STOCK("07", "Available quantity is less than what is requested");
 
     private final String code;
     private final String description;

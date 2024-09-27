@@ -1,12 +1,14 @@
 package com.assessment.bookstore.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Set;
 
 
 @Entity
@@ -14,6 +16,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "isbn")
 public class Book {
     @Id
     private String isbn;
@@ -32,4 +35,8 @@ public class Book {
 
     @Column(name = "quantity")
     private Integer quantity;
+
+    @ManyToMany(mappedBy = "isbns", fetch = FetchType.LAZY)
+    @JsonBackReference()
+    private Set<Cart> carts;
 }

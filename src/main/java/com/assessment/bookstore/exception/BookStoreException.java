@@ -16,6 +16,10 @@ public class BookStoreException extends Exception {
         this.responseCode = responseCode;
     }
 
+    public BookStoreException(ResponseCode responseCode) {
+        this.responseCode = responseCode;
+    }
+
     public BookStoreException(ResponseCode responseCode, String message) {
         super(message);
         this.responseCode = responseCode;

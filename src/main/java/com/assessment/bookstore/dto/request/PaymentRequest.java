@@ -25,4 +25,8 @@ public class PaymentRequest {
             message = "PaymentType possible values: WEB, USSD or Transfer")
     @NotBlank(message = "PaymentType is required")
     private String paymentType;
+
+    @NotNull
+    @Positive(message = "UserId allows only positive numbers")
+    private Long userId;
 }

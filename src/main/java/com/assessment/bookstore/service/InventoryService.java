@@ -2,100 +2,61 @@ package com.assessment.bookstore.service;
 
 import com.assessment.bookstore.database.entity.Book;
 import com.assessment.bookstore.database.repository.BookRepository;
-import com.assessment.bookstore.dto.request.BookRequest;
+import com.assessment.bookstore.dto.request.StockRequest;
+import com.assessment.bookstore.dto.request.StockResponse;
 import com.assessment.bookstore.dto.response.BaseCollectionResponse;
+import com.assessment.bookstore.dto.response.BaseResponse;
 import com.assessment.bookstore.dto.response.BaseStandardResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-
-import static com.assessment.bookstore.util.AppConstants.EM_SAVING_TO_DATABASE;
 import static com.assessment.bookstore.util.ResponseCode.*;
-import static java.util.Collections.singletonList;
-import static java.util.Objects.isNull;
+import static java.util.Collections.emptyList;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class InventoryService {
 
+    private final BookStoreService bookStoreService;
     private final BookRepository bookRepository;
 
-    public BaseStandardResponse<Book> createBook(BookRequest request) {
-        log.info("Creating new book");
-        Book book = new Book();
-        BeanUtils.copyProperties(request, book);
-
-        BaseStandardResponse<Book> reponse;
-        try {
-            Book createdBook = bookRepository.save(book);
-            log.info("saved new book to the database");
-            reponse = new BaseStandardResponse<>(createdBook);
-        } catch (Exception ex) {
-            log.error(EM_SAVING_TO_DATABASE, ex);
-            reponse = new BaseStandardResponse<>(DATABASE_SAVE_ERROR);
+    public BaseStandardResponse<StockRequest> adjustStock(String isbn, Integer quantity) {
+        BaseStandardResponse<Book> bookResp = bookStoreService.getBook(isbn);
+        if (SUCCESS.getCode().equals(bookResp.getResponseCode())) {
+            Book book = bookResp.getData();
+            int newQuantity = book.getQuantity() + quantity;
+            if(newQuantity < 0) {
+                newQuantity = 0;
+            }
+            book.setQuantity(newQuantity);
+            bookRepository.save(bookResp.getData());
+            return new BaseStandardResponse<>(new StockRequest(newQuantity));
         }
-        log.info("Final response :: {}", reponse);
-        return reponse;
+        return new BaseStandardResponse<>(getResponseByCode(bookResp.getResponseCode()));
     }
 
-    public BaseStandardResponse<Book> updateBook(BookRequest request) {
-        log.info("Updating existing book with ISBN {}", request.getIsbn());
-        Optional<Book> optionalBook = bookRepository.findByIsbn(request.getIsbn());
-        if (optionalBook.isEmpty()) {
-            return new BaseStandardResponse<>(UNABLE_TO_LOCATE_RECORD);
+    public BaseResponse getStocks(String isbn) {
+        if (hasText(isbn)) {
+            BaseStandardResponse<Book> bookResp = bookStoreService.getBook(isbn);
+            if (SUCCESS.getCode().equals(bookResp.getResponseCode())) {
+                StockResponse stockResponse = new StockResponse();
+                BeanUtils.copyProperties(bookResp.getData(), stockResponse);
+                return new BaseStandardResponse<>(stockResponse);
+            }
+            return new BaseStandardResponse<>(getResponseByCode(bookResp.getResponseCode()));
         }
 
-        Book book = optionalBook.get();
-        BeanUtils.copyProperties(request, book);
-
-        BaseStandardResponse<Book> reponse;
-        try {
-            Book createdBook = bookRepository.save(book);
-            log.info("Updated new book to the database");
-            reponse = new BaseStandardResponse<>(createdBook);
-        } catch (Exception ex) {
-            log.error(EM_SAVING_TO_DATABASE, ex);
-            reponse = new BaseStandardResponse<>(DATABASE_SAVE_ERROR);
+        BaseCollectionResponse<Book> bookResps = bookStoreService.getBooks();
+        if (bookResps.getData().isEmpty()) {
+            return new BaseCollectionResponse<>(emptyList());
         }
-        log.info("Final response :: {}", reponse);
-        return reponse;
+        return new BaseCollectionResponse<>(bookResps.getData()
+                .stream()
+                .map(book -> new StockResponse(book.getIsbn(), book.getTitle(), book.getQuantity()))
+                .toList());
     }
-
-    public BaseCollectionResponse<Book> getBooks() {
-        log.info("Get all books");
-        return new BaseCollectionResponse<>(bookRepository.findAll());
-    }
-
-    public BaseStandardResponse<Book> getBook(String isbn) {
-        log.info("Get book with ISBN {}", isbn);
-        Optional<Book> optionalBook = bookRepository.findByIsbn(isbn);
-        return optionalBook
-                .map(BaseStandardResponse::new)
-                .orElseGet(() -> new BaseStandardResponse<>(UNABLE_TO_LOCATE_RECORD));
-    }
-
-    public BaseStandardResponse<Book> deleteBook(String isbn) {
-        Optional<Book> optionalBook = bookRepository.findByIsbn(isbn);
-        if (optionalBook.isEmpty()) {
-            return new BaseStandardResponse<>(UNABLE_TO_LOCATE_RECORD);
-        }
-        bookRepository.deleteById(optionalBook.get().getIsbn());
-        log.info("deleted book with ISBN {}", isbn);
-        return new BaseStandardResponse<>(SUCCESS);
-    }
-
-    public BaseCollectionResponse<Book> searchBook(String criterion) {
-        log.info("Searching for books with criterion {}", criterion);
-        Optional<List<Book>> optionalBook = bookRepository.searchBook(criterion);
-//        if(optionalBook.isEmpty()) {
-//            return new BaseCollectionResponse<>(UNABLE_TO_LOCATE_RECORD);
-//        }
-//        return new BaseCollectionResponse<>(optionalBook.get());
-        return optionalBook.map(BaseCollectionResponse::new).orElseGet(() -> new BaseCollectionResponse<>(UNABLE_TO_LOCATE_RECORD));
-    }
-
 }

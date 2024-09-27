@@ -1,6 +1,7 @@
 package com.assessment.bookstore.util;
 
 import lombok.Getter;
+import java.util.Arrays;
 
 @Getter
 public enum ResponseCode {
@@ -14,12 +15,16 @@ public enum ResponseCode {
     WEBSERVICE_CALL_FAILED("05", "API call failed"),
     VALIDATION_ERROR("06", "Validation Error");
 
-    private String code;
-    private String description;
+    private final String code;
+    private final String description;
 
     ResponseCode(String code, String description) {
         this.code = code;
         this.description = description;
+    }
+
+    public static ResponseCode getResponseByCode(String code){
+        return Arrays.stream(ResponseCode.values()).filter(respCode -> respCode.getCode().equals(code)).findFirst().orElse(null);
     }
 
 }

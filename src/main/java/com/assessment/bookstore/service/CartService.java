@@ -65,6 +65,14 @@ public class CartService {
         log.info("Get cart items for cartId [{}]", cartId);
         Optional<Cart> optionalCart = cartRepository.findById(cartId);
         return optionalCart
+                .filter(cart -> {
+                    if(ChronoUnit.DAYS.between(cart.getReservedUntil(), LocalDateTime.now()) > 3) {
+                        log.info("Exceeded reservation limit fo 3 days");
+                        deleteCart(cartId);
+                        return false;
+                    }
+                    return true;
+                })
                 .map(BaseStandardResponse::new)
                 .orElseGet(() -> new BaseStandardResponse<>(UNABLE_TO_LOCATE_RECORD));
     }

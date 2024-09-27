@@ -20,16 +20,33 @@ A Demo Project for Online Book Store with some features as below:
 - Clone project from the git repository using this link [Git Repo](https://github.com/WisdomEssien/book-store.git).
 
 - Open command prompt and navigate to the desired directory. Copy, paste and execute the git command below on the command prompt.
-  _You have to have git installed on your system._
+  _You must git installed on your system._
 
 ```
 	git clone -b main https://github.com/WisdomEssien/book-store.git
 ```
 
-- Once the project is completely downloaded, launch and import project to your favourite IDE as a maven project.
-- Run the application.
+- Once the project is completely downloaded, switch to the project directory, build and run the application.
+  _You must have maven and Java17 installed on your system._
+
+```
+	cd bookstore
+```
+
+```
+	mvn clean package
+```
+
+```
+	cd target
+```
+
+```
+	java -jar bookstore-1.0.jar
+```
+
 - Import the Postman Collection shared in the email. There are saved request/responses to test with.
-  - You can start from ``ìnventory``
+  - You can start from ``ìnventory`` endpoints for a seamless test.
 - Launch the database console using this link: [H2 Database Console](http://localhost:7788/h2-console/).
   Copy and paste link directly on the browser if you are experiencing any difficulty redirecting.
 - Use the credentials below when prompted to login

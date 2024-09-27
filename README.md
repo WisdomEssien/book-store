@@ -20,17 +20,17 @@ A Demo Project for Online Book Store with some features as below:
 - Clone project from the git repository using this link [Git Repo](https://github.com/WisdomEssien/book-store.git).
 
 - Open command prompt and navigate to the desired directory. Copy, paste and execute the git command below on the command prompt.
-  _You must git installed on your system._
+  _**You must git installed on your system**._
 
 ```
 	git clone -b main https://github.com/WisdomEssien/book-store.git
 ```
 
 - Once the project is completely downloaded, switch to the project directory, build and run the application.
-  _You must have maven and Java17 installed on your system._
+  _**You must have maven and Java17 installed on your system**._
 
 ```
-	cd bookstore
+	cd book-store
 ```
 
 ```
